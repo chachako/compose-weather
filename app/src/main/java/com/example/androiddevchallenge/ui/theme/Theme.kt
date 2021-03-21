@@ -20,35 +20,24 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
-    primary = purple200,
-    primaryVariant = purple700,
-    secondary = teal200
-)
-
-private val LightColorPalette = lightColors(
-    primary = purple500,
-    primaryVariant = purple700,
-    secondary = teal200
-
-        /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
+    background = Color(0xFF111111),
+    onBackground = Color.White,
+    surface = Color.White.copy(0.025f),
+    onSurface = Color.White,
 )
 
 @Composable
-fun MyTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
-    } else {
-        LightColorPalette
-    }
+fun WeatherTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+    // TODO Light Theme
+    val colors = DarkColorPalette
+//    val colors = if (darkTheme) {
+//        DarkColorPalette
+//    } else {
+//        LightColorPalette
+//    }
 
     MaterialTheme(
         colors = colors,
@@ -57,3 +46,23 @@ fun MyTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() (
         content = content
     )
 }
+
+/**
+ * The custom theme data of compose-weather application.
+ *
+ * @author 凛 (https://github.com/RinOrz)
+ */
+
+val currentTypography
+    @Composable
+    get() = MaterialTheme.typography
+
+val currentShapes
+    @Composable
+    get() = MaterialTheme.shapes
+
+val currentColors
+    @Composable
+    get() = MaterialTheme.colors
+
+val currentGradientColors = GradientColors
