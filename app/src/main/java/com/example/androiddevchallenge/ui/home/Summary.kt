@@ -56,23 +56,26 @@ import kotlin.math.roundToInt
 @Composable
 fun Summary(
   modifier: Modifier,
+  weatherIndex: Int,
   allCityWeathers: List<Weather>,
-  currentPage: Int,
   onPageChanged: (Int) -> Unit
 ) {
   val state = rememberPagerState(
     pageCount = allCityWeathers.size,
-    initialPage = currentPage
+    initialPage = weatherIndex
   )
   val fraction = state.currentPageOffset
   if (fraction == 0f) {
-    if (state.currentPage != currentPage) {
+    if (state.currentPage != weatherIndex) {
       onPageChanged(state.currentPage)
     }
   }
   Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
     HorizontalPager(
-      state = state,
+      state = rememberPagerState(
+        pageCount = allCityWeathers.size,
+        initialPage = weatherIndex
+      ),
       modifier = Modifier
         .weight(1f)
         .fillMaxWidth(),
@@ -80,21 +83,21 @@ fun Summary(
     ) {
       Item(
         weather = allCityWeathers[it],
-        fade = if (it == state.currentPage) {
+        fade = if (it == currentPage) {
           lerp(1f, 0.2f, fraction)
         } else {
           lerp(0.2f, 1f, fraction)
         },
         // The weather illustration shifts in the opposite direction when sliding
-        parallax = if (it == state.currentPage) {
-          lerp(0f, 40f, fraction)
+        parallax = if (it == currentPage) {
+          lerp(0f, 100f, fraction)
         } else {
-          lerp(-40f, 0f, fraction)
+          lerp(-100f, 0f, fraction)
         },
       )
     }
     Spacer(modifier = Modifier.height(16.dp))
-    TabIndicator(state.currentPage, state.pageCount)
+    PageIndicator(state.currentPage, state.pageCount)
   }
 }
 
@@ -103,43 +106,6 @@ private fun Item(weather: Weather, fade: Float, parallax: Float) {
   val info = weather.today
   val kind = info.kind
   var illustrationHeight by remember { mutableStateOf(0) }
-
-  @Composable
-  fun Text() {
-    Column(modifier = Modifier.fillMaxSize()) {
-      Text(
-        text = kind.name,
-        style = currentTypography.caption,
-        modifier = Modifier
-          .padding(top = 32.dp)
-          .align(Alignment.CenterHorizontally),
-      )
-      Box(modifier = Modifier.weight(1f)) {
-        Temperature(
-          temperature = info.temperature.realtime,
-          modifier = Modifier
-            .fillMaxWidth()
-            .align(Alignment.Center)
-        )
-      }
-      // 因为插图实际上是比高度小一些的，所以我们在这里做一个空间来避免显示不正确
-      val fakeHeight = with(LocalDensity.current) { (illustrationHeight / 1.46f).toDp() }
-      Spacer(modifier = Modifier.size(fakeHeight))
-    }
-  }
-
-  @Composable
-  fun Illustration() {
-    CoilImage(
-      data = kind.icon,
-      modifier = Modifier
-        .padding(horizontal = 16.dp)
-        .fillMaxWidth()
-        .offset(parallax.dp)
-        .onSizeChanged { illustrationHeight = it.height },
-      contentScale = ContentScale.Fit
-    )
-  }
 
   Box(
     modifier = Modifier
@@ -156,33 +122,60 @@ private fun Item(weather: Weather, fade: Float, parallax: Float) {
       },
     contentAlignment = Alignment.BottomCenter
   ) {
-    Text()
-    Illustration()
+    Text(
+      weather = kind.name,
+      temperature = info.temperature.realtime,
+      illustrationHeight = illustrationHeight,
+    )
+    Illustration(
+      modifier = Modifier
+        .offset(x = parallax.dp)
+        .onSizeChanged { illustrationHeight = it.height },
+      resId = kind.icon
+    )
   }
 }
 
 @Composable
-private fun TabIndicator(selected: Int, count: Int) {
-  require(count > 0)
-  val currentColor = LocalContentColor.current
-  val disabledAlpha = ContentAlpha.disabled
-  Row(
+private fun Illustration(
+  modifier: Modifier,
+  resId: Int
+) {
+  CoilImage(
+    data = resId,
     modifier = Modifier
-      .wrapContentSize()
-      .padding(top = 2.dp),
-    verticalAlignment = Alignment.CenterVertically
-  ) {
-    repeat(count) {
-      val color = currentColor.copy(alpha = if (it == selected) 1f else disabledAlpha)
-      Shape(
-        color, modifier = Modifier
-          .height(4.dp)
-          .width(13.dp)
+      .padding(horizontal = 16.dp)
+      .fillMaxWidth()
+      .then(modifier),
+    contentScale = ContentScale.Fit
+  )
+}
+
+@Composable
+private fun Text(
+  weather: String,
+  temperature: Double,
+  illustrationHeight: Int
+) {
+  Column(modifier = Modifier.fillMaxSize()) {
+    Text(
+      text = weather,
+      style = currentTypography.caption,
+      modifier = Modifier
+        .padding(top = 32.dp)
+        .align(Alignment.CenterHorizontally),
+    )
+    Box(modifier = Modifier.weight(1f)) {
+      Temperature(
+        temperature = temperature,
+        modifier = Modifier
+          .fillMaxWidth()
+          .align(Alignment.Center)
       )
-      if (it < count) {
-        Spacer(modifier = Modifier.width(6.dp))
-      }
     }
+    // 因为插图实际上是比高度小一些的，所以我们在这里做一个空间来避免显示不正确
+    val fakeHeight = with(LocalDensity.current) { (illustrationHeight / 1.46f).toDp() }
+    Spacer(modifier = Modifier.size(fakeHeight))
   }
 }
 
@@ -250,6 +243,31 @@ private fun Temperature(temperature: Double, modifier: Modifier) {
         },
       alpha = 0.8f
     )
+  }
+}
+
+@Composable
+private fun PageIndicator(selected: Int, count: Int) {
+  require(count > 0)
+  val currentColor = LocalContentColor.current
+  val disabledAlpha = ContentAlpha.disabled
+  Row(
+    modifier = Modifier
+      .wrapContentSize()
+      .padding(top = 2.dp),
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    repeat(count) {
+      val color = currentColor.copy(alpha = if (it == selected) 1f else disabledAlpha)
+      Shape(
+        color, modifier = Modifier
+          .height(4.dp)
+          .width(13.dp)
+      )
+      if (it < count) {
+        Spacer(modifier = Modifier.width(6.dp))
+      }
+    }
   }
 }
 

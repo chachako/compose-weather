@@ -58,7 +58,7 @@ fun Home(navController: NavHostController, viewModel: ViewModel) {
         .weight(1f)
         .padding(top = LocalPadding.current.vertical),
       allCityWeathers = allCityWeathers,
-      currentPage = weatherIndex,
+      weatherIndex = weatherIndex,
       onPageChanged = { viewModel.selectCityWeather(it) }
     )
     Spacer(modifier = Modifier.height(LocalPadding.current.vertical))
