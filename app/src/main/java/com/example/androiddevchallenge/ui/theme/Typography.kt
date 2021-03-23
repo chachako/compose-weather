@@ -26,12 +26,10 @@ import com.example.androiddevchallenge.R
 val typography = Typography(
     defaultFontFamily = WeatherFont.Nunito,
     h1 = TextStyle(
-        fontFamily = WeatherFont.JetBrainsMono,
         fontWeight = FontWeight.Bold,
         fontSize = 160.sp,
     ),
     h2 = TextStyle(
-        fontFamily = WeatherFont.JetBrainsMono,
         fontWeight = FontWeight.Bold,
         fontSize = 110.sp,
     ),
@@ -74,10 +72,6 @@ val typography = Typography(
 )
 
 object WeatherFont {
-    val JetBrainsMono = FontFamily(
-        Font(R.font.jetbrains_mono_bold, FontWeight.Bold)
-    )
-
     val Rubik = FontFamily(
         Font(R.font.rubik_regular),
         Font(R.font.rubik_light, FontWeight.Light),
