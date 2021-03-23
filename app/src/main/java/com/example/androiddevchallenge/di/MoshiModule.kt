@@ -1,6 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
- * Copyright 2021 RinOrz (凛)
+ * Copyright 2021-2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * Github home page: https://github.com/RinOrz
  */
 package com.example.androiddevchallenge.di
 
 import com.example.androiddevchallenge.data.CityNameAdapter
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.addAdapter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,8 +30,8 @@ import javax.inject.Singleton
  */
 @Module @InstallIn(SingletonComponent::class)
 object MoshiModule {
-  @Provides @Singleton
-  fun provideMoshi(): Moshi = Moshi.Builder()
-    .add(CityNameAdapter())
-    .build()
+    @Provides @Singleton
+    fun provideMoshi(): Moshi = Moshi.Builder()
+        .add(CityNameAdapter())
+        .build()
 }

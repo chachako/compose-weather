@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @file:Suppress("unused")
 
 package com.example.androiddevchallenge.ui.theme
@@ -30,22 +29,19 @@ import androidx.compose.ui.graphics.Color
  */
 val Colors.blue get() = Color(0xFF4452FB)
 
-
 /**
  * All gradient colors of compose-weather application.
  */
 object GradientColors {
-  val textStart
-    @Composable
-    get() = if (MaterialTheme.colors.isLight) {
-      Color(0xFF34374D)
-    } else {
-      Color.White
-    }
+    val textStart
+        @Composable
+        get() = if (MaterialTheme.colors.isLight) {
+            Color(0xFF34374D)
+        } else {
+            Color.White
+        }
 
-  val textEnd
-    @Composable
-    get() = textStart.copy(alpha = 0.04f)
+    val textEnd
+        @Composable
+        get() = textStart.copy(alpha = 0.04f)
 }
-
-typealias GradientColor = Pair<Color, Color>

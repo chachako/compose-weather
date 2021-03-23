@@ -15,15 +15,21 @@
  */
 package com.example.androiddevchallenge.ui.home
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.example.androiddevchallenge.data.LocalPadding
-import com.example.androiddevchallenge.util.observeAsNonNullState
+import com.example.androiddevchallenge.data.Screen
+import com.example.androiddevchallenge.data.navigate
 import dev.chrisbanes.accompanist.insets.navigationBarsPadding
 import dev.chrisbanes.accompanist.insets.statusBarsPadding
+import kotlinx.coroutines.delay
 
 /**
  * The only entry point to the HomePage UI.
@@ -32,40 +38,72 @@ import dev.chrisbanes.accompanist.insets.statusBarsPadding
  */
 @Composable
 fun Home(navController: NavHostController, viewModel: ViewModel) {
-  val avatar by viewModel.avatar.observeAsNonNullState()
-  val allCityWeathers by viewModel.allCityWeathers.observeAsNonNullState()
-  val weatherIndex by viewModel.currentWeatherIndex.observeAsNonNullState()
-  val weather = viewModel.currentWeather
-  val weatherInfo = weather.today
+    val state by viewModel.state
+    val avatar by viewModel.avatar
+    val allCityForecasts = viewModel.allCityForecasts
+    val currentCityPage by viewModel.currentCityPage
+    val todayForecast = viewModel.currentCityForecast
+    val todayWeather = todayForecast.today
 
-  Column(
-    modifier = Modifier
-      .statusBarsPadding()
-      .navigationBarsPadding()
-  ) {
-    TopBar(
-      title = weather.city.name,
-      subtitle = "Updated on ${weather.updateTime}",
-      avatar = avatar,
-      trailingText = weatherInfo.aqi.value.toString(),
-      onMenuClick = { /*TODO*/ },
-      onSearchClick = { /*TODO*/ },
-      onTrailingButtonClick = { /*TODO*/ },
-      isPositioned = weatherIndex == 0,
-    )
-    Summary(
-      modifier = Modifier
-        .weight(1f)
-        .padding(top = LocalPadding.current.vertical),
-      allCityWeathers = allCityWeathers,
-      currentPage = weatherIndex,
-      onPageChanged = { viewModel.selectCityWeather(it) }
-    )
-    Spacer(modifier = Modifier.height(LocalPadding.current.vertical))
-    Period(
-      hourlyForecast = weatherInfo.hours,
-      forecastDays = weather.forecastDays.size,
-      highlightColors = weatherInfo.kind.colors,
-    )
-  }
+    CompositionLocalProvider(LocalHomeState provides state) {
+        Column(
+            modifier = Modifier
+                .statusBarsPadding()
+                .navigationBarsPadding()
+        ) {
+            TopBar(
+                avatar = avatar,
+                title = todayForecast.city.name,
+                subtitle = "Updated on ${todayForecast.readableUpdateTime()}",
+                trailingText = todayWeather.aqi.value.toString(),
+                onMenuClick = { /*TODO*/ },
+                onSearchClick = { /*TODO*/ },
+                onTrailingButtonClick = { /*TODO*/ },
+                isPositioned = currentCityPage == 0,
+            )
+
+            Pager(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = LocalPadding.current.vertical),
+                currentCityPage = currentCityPage,
+                onPageClick = viewModel::showDetails,
+                onPageChanged = viewModel::changeCityPage,
+                allCityForecasts = allCityForecasts,
+            )
+            ForecastsBar(
+                hourlyForecasts = todayWeather.hours24,
+                forecastDays = todayForecast.size,
+                highlightColors = todayWeather.type.colors,
+            )
+        }
+    }
+
+    LaunchedEffect(state) {
+        if (state.isExpandDetails) {
+            delay(HomeTransition.MaxDuration)
+            navController.navigate(
+                Screen.Details.Weather,
+                "cityCode" to todayForecast.city.code,
+                "provinceCode" to todayForecast.city.provinceCode
+            )
+            viewModel.hideDetails()
+        }
+    }
 }
+
+/**
+ * The [Home] will display different UI
+ * according to this state.
+ *
+ * @see HomeTransition
+ */
+enum class HomeState {
+    Initially,
+    ExpandDetails;
+
+    val isInitial get() = this == Initially
+    val isExpandDetails get() = this == ExpandDetails
+}
+
+val LocalHomeState = compositionLocalOf { HomeState.Initially }

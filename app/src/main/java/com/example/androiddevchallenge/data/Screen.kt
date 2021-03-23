@@ -15,6 +15,10 @@
  */
 package com.example.androiddevchallenge.data
 
+import androidx.navigation.NavController
+import androidx.navigation.NavOptionsBuilder
+import androidx.navigation.compose.navigate
+
 /**
  * 储存了所有 UI 屏幕的数据
  * Store all UI screen data.
@@ -23,4 +27,25 @@ package com.example.androiddevchallenge.data
  */
 sealed class Screen(val route: String) {
     object Home : Screen("Home")
+    object Details : Screen("Details") {
+        object Weather : Screen("Weather?cityCode={cityCode}&provinceCode={provinceCode}")
+        object AQI : Screen("AQI")
+    }
 }
+
+fun NavController.navigate(
+    screen: Screen,
+    vararg arguments: Pair<String, Any>,
+    builder: NavOptionsBuilder.() -> Unit = {}
+) = navigate(
+    (
+        screen.route.run {
+            var route = this
+            arguments.forEach {
+                route = route.replace("{${it.first}}", it.second.toString())
+            }
+            route
+        }
+        ),
+    builder
+)

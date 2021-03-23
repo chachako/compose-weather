@@ -1,6 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
- * Copyright 2021 RinOrz (凛)
+ * Copyright 2021-2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * Github home page: https://github.com/RinOrz
  */
 package com.example.androiddevchallenge.di
 
@@ -37,15 +35,14 @@ import javax.inject.Singleton
 @Module @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-  @Provides @Singleton
-  fun provideImageLoader(
-    @ApplicationContext context: Context,
-    okHttpClient: OkHttpClient
-  ) = ImageLoader.Builder(context)
-    .memoryCachePolicy(CachePolicy.ENABLED)
-    .diskCachePolicy(CachePolicy.ENABLED)
-    .networkCachePolicy(CachePolicy.ENABLED)
-    .okHttpClient(okHttpClient)
-    .build()
-
+    @Provides @Singleton
+    fun provideImageLoader(
+        @ApplicationContext context: Context,
+        okHttpClient: OkHttpClient
+    ) = ImageLoader.Builder(context)
+        .memoryCachePolicy(CachePolicy.ENABLED)
+        .diskCachePolicy(CachePolicy.ENABLED)
+        .networkCachePolicy(CachePolicy.ENABLED)
+        .okHttpClient(okHttpClient)
+        .build()
 }

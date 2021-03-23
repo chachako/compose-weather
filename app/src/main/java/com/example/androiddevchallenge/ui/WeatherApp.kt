@@ -25,14 +25,17 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltNavGraphViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import com.example.androiddevchallenge.data.LocalPadding
 import com.example.androiddevchallenge.data.Padding
 import com.example.androiddevchallenge.data.Screen
+import com.example.androiddevchallenge.ui.details.weather.WeatherDetails
 import com.example.androiddevchallenge.ui.home.Home
-import com.example.androiddevchallenge.util.viewModel
 import dev.chrisbanes.accompanist.insets.ProvideWindowInsets
 
 /**
@@ -52,11 +55,31 @@ fun WeatherApp() {
         ) {
             Box(
                 modifier = Modifier
-                  .fillMaxSize()
-                  .background(MaterialTheme.colors.background)
+                    .fillMaxSize()
+                    .background(MaterialTheme.colors.background)
             ) {
                 NavHost(navController, startDestination = Screen.Home.route) {
-                    composable(Screen.Home.route) { Home(navController, it.viewModel()) }
+                    composable(Screen.Home.route) {
+                        Home(
+                            navController = navController,
+                            viewModel = hiltNavGraphViewModel()
+                        )
+                    }
+                    composable(
+                        Screen.Details.Weather.route,
+                        arguments = listOf(
+                            navArgument("cityCode") { type = NavType.IntType },
+                            navArgument("provinceCode") { type = NavType.IntType },
+                        )
+                    ) {
+                        // TODO: A more elegant way?
+                        WeatherDetails(
+                            navController = navController,
+                            viewModel = hiltNavGraphViewModel(),
+                            cityCode = it.arguments!!.getInt("cityCode"),
+                            provinceCode = it.arguments!!.getInt("provinceCode")
+                        )
+                    }
                 }
             }
         }
